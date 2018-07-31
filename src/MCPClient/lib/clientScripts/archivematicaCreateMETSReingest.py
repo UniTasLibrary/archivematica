@@ -29,10 +29,12 @@ def update_object(job, mets):
 
         # Copy techMD
         old_techmd = None
-        for t in fsentry.amdsecs[0].subsections:
-            if t.subsection == 'techMD' and (not t.status or t.status == 'current'):
-                old_techmd = t
-                break
+        if fsentry.amdsecs:
+            for t in fsentry.amdsecs[0].subsections:
+                if t.subsection == 'techMD' and \
+                        (not t.status or t.status == 'current'):
+                    old_techmd = t
+                    break
         new_techmd_contents = copy.deepcopy(old_techmd.contents.document)
         modified = False
 
@@ -154,6 +156,8 @@ def update_rights(job, mets, sip_uuid, state):
         ).exclude(status=models.METADATA_STATUS_ORIGINAL)
 
     for fsentry in original_files:
+        if not fsentry.amdsecs:
+            continue
         rightsmds = [s for s in fsentry.amdsecs[0].subsections if s.subsection == 'rightsMD']
         for r in rightsmds:
             # Don't follow MDRef pointers (see #1083 for more details).
